@@ -4,6 +4,7 @@ interface Ticket {
   amount: number;
   paymentUrl?: string;
   capacity?: number;
+  note?: string;
 }
 
 interface Props {
@@ -29,10 +30,13 @@ const uid = `ticket-${Math.random().toString(36).slice(2, 8)}`;
             disabled={!t.paymentUrl}
           />
           <span class="ticket-card">
-            <span class="ticket-label">{t.label}</span>
-            <span class="ticket-price">
-              ¥{t.amount.toLocaleString("ja-JP")}
+            <span class="ticket-main">
+              <span class="ticket-label">{t.label}</span>
+              <span class="ticket-price">
+                ¥{t.amount.toLocaleString("ja-JP")}
+              </span>
             </span>
+            {t.note && <span class="ticket-note">{t.note}</span>}
           </span>
         </label>
       ))
@@ -44,9 +48,6 @@ const uid = `ticket-${Math.random().toString(36).slice(2, 8)}`;
   </button>
   <p class="checkout-note">
     Stripe の決済ページへ移動します
-  </p>
-  <p class="checkout-note">
-    日本酒付は決済ページでオプション追加できます
   </p>
   <p class="checkout-notice">
     ※ 複数枚購入する場合は、決済ページで枚数を変更できます
@@ -104,8 +105,8 @@ const uid = `ticket-${Math.random().toString(36).slice(2, 8)}`;
 
   .ticket-card {
     display: flex;
-    align-items: center;
-    gap: 0.8rem;
+    flex-direction: column;
+    gap: 0.3rem;
     padding: 0.7rem 1rem;
     border: 1.5px solid var(--color-border);
     border-radius: var(--radius);
@@ -113,6 +114,18 @@ const uid = `ticket-${Math.random().toString(36).slice(2, 8)}`;
     transition:
       border-color 0.2s,
       box-shadow 0.2s;
+  }
+
+  .ticket-main {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .ticket-note {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
   }
 
   .ticket-option input:checked + .ticket-card {
@@ -192,7 +205,7 @@ const uid = `ticket-${Math.random().toString(36).slice(2, 8)}`;
   }
 
   @media (max-width: 480px) {
-    .ticket-card {
+    .ticket-main {
       flex-wrap: wrap;
       gap: 0.3rem;
     }

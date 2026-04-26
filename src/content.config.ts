@@ -18,6 +18,7 @@ const events = defineCollection({
           amount: z.number(),
           paymentUrl: z.string().url().optional(),
           capacity: z.number().optional(),
+          note: z.string().optional(),
         })
       )
       .optional(),
