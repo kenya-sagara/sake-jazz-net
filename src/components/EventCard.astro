@@ -46,7 +46,11 @@ const {
   image,
 } = Astro.props;
 
+/** ビルド環境が UTC でも、サイト上の日時は日本時間で表示する */
+const EVENT_TIMEZONE = "Asia/Tokyo";
+
 const formatter = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: EVENT_TIMEZONE,
   year: "numeric",
   month: "long",
   day: "numeric",
@@ -54,9 +58,20 @@ const formatter = new Intl.DateTimeFormat("ja-JP", {
 });
 
 const timeFormatter = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: EVENT_TIMEZONE,
   hour: "2-digit",
   minute: "2-digit",
 });
+
+const badgeMonth = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: EVENT_TIMEZONE,
+  month: "short",
+}).format(date);
+
+const badgeDay = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: EVENT_TIMEZONE,
+  day: "numeric",
+}).format(date);
 
 const formattedDate = formatter.format(date);
 const formattedTime = timeFormatter.format(date);
@@ -69,10 +84,8 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
 
 <article class:list={["event-card", { "is-past": isPast }]}>
   <div class="event-date-badge">
-    <span class="event-month"
-      >{date.toLocaleDateString("ja-JP", { month: "short" })}</span
-    >
-    <span class="event-day">{date.getDate()}</span>
+    <span class="event-month">{badgeMonth}</span>
+    <span class="event-day">{badgeDay}</span>
   </div>
 
   <div class="event-body">
