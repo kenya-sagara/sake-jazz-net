@@ -55,7 +55,15 @@ try {
     .sort((a, b) => b.views - a.views)
     .slice(0, MAX_VIDEOS);
 } catch {
-  /* graceful fallback: show nothing */
+  // Fallback to known videos when RSS fetch fails (e.g. in CI)
+  videos = [
+    { id: "bz73HnT5tf4", title: "Live at HMVP Okachimachi Studio / 4-17-2024", views: 1791, published: "2024-04-17" },
+    { id: "-ULhYmaRh6A", title: "Live at HMVP Okachimachi Studio / 5-20-2026", views: 1024, published: "2026-05-20" },
+    { id: "CE-E8Lvcjmg", title: "Live at HMVP Okachimachi Studio / 6-18-2025 1st", views: 955, published: "2025-06-18" },
+    { id: "_cR5PDa9iTw", title: "Live at HMVP Okachimachi Studio / 6-18-2025 2nd", views: 815, published: "2025-06-18" },
+    { id: "NHt68rQ1SlU", title: "Live at HMVP Okachimachi Studio / 3-20-2024", views: 741, published: "2024-03-20" },
+    { id: "LuItGeSY65I", title: "Live at HMVP Okachimachi Studio / 3-27-2025 1st", views: 491, published: "2025-03-27" },
+  ];
 }
 
 const channelUrl = `https://www.youtube.com/channel/${CHANNEL_ID}`;
