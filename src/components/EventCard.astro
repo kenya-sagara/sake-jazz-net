@@ -8,6 +8,11 @@ interface TicketEntry {
   capacity?: number;
 }
 
+interface ScheduleEntry {
+  time: string;
+  label: string;
+}
+
 interface Props {
   title: string;
   date: Date;
@@ -25,6 +30,7 @@ interface Props {
   sponsor?: string;
   description?: string;
   image?: string;
+  schedule?: ScheduleEntry[];
 }
 
 const {
@@ -44,6 +50,7 @@ const {
   sponsor,
   description,
   image,
+  schedule,
 } = Astro.props;
 
 /** ビルド環境が UTC でも、サイト上の日時は日本時間で表示する */
@@ -105,7 +112,16 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
     <dl class="event-details">
       <div class="detail-row">
         <dt>日時</dt>
-        <dd>{formattedDate} {timeRange}</dd>
+        <dd>
+          {formattedDate} {timeRange}
+          {schedule && schedule.length > 0 && (
+            <ul class="schedule-list">
+              {schedule.map((s) => (
+                <li><span class="schedule-time">{s.time}</span>{s.label}</li>
+              ))}
+            </ul>
+          )}
+        </dd>
       </div>
       <div class="detail-row">
         <dt>会場</dt>
@@ -392,6 +408,26 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
 
   .price-list li + li {
     margin-top: 0.15rem;
+  }
+
+  .schedule-list {
+    list-style: none;
+    margin-top: 0.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .schedule-list li {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .schedule-time {
+    font-weight: 700;
+    color: var(--color-navy);
+    min-width: 5rem;
+    flex-shrink: 0;
   }
 
   .event-actions {

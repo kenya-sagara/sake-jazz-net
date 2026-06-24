@@ -30,6 +30,14 @@ const events = defineCollection({
     sponsor: z.string().optional(),
     description: z.string().optional(),
     image: z.string().optional(),
+    schedule: z
+      .array(
+        z.object({
+          time: z.string(),
+          label: z.string(),
+        })
+      )
+      .optional(),
     draft: z.boolean().default(false),
   }),
 });
