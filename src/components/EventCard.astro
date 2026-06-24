@@ -193,7 +193,7 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
     <div class="event-actions">
       {
         tickets && tickets.some((t) => t.paymentUrl) && !isPast ? (
-          <TicketSelector tickets={tickets} />
+          <TicketSelector tickets={tickets} eventDate={date.toISOString()} />
         ) : ticketUrl && !isPast ? (
           <a
             href={ticketUrl}

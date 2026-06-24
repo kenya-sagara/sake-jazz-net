@@ -9,13 +9,14 @@ interface Ticket {
 
 interface Props {
   tickets: Ticket[];
+  eventDate: string;
 }
 
-const { tickets } = Astro.props;
+const { tickets, eventDate } = Astro.props;
 const uid = `ticket-${Math.random().toString(36).slice(2, 8)}`;
 ---
 
-<div class="ticket-selector" data-uid={uid}>
+<div class="ticket-selector" data-uid={uid} data-event-date={eventDate}>
   <h4 class="ticket-heading">チケットを選択</h4>
   <div class="ticket-list">
     {
@@ -57,9 +58,29 @@ const uid = `ticket-${Math.random().toString(36).slice(2, 8)}`;
 <script>
   document.querySelectorAll<HTMLElement>(".ticket-selector").forEach((container) => {
     const uid = container.dataset.uid;
+    const eventDate = container.dataset.eventDate;
     if (!uid) return;
     const btn = container.querySelector(".checkout-btn") as HTMLButtonElement;
+
+    if (eventDate) {
+      const eventTime = new Date(eventDate).getTime();
+      if (!Number.isNaN(eventTime) && Date.now() >= eventTime) {
+        btn.disabled = true;
+        btn.textContent = "終了しました";
+        return;
+      }
+    }
+
     btn.addEventListener("click", () => {
+      if (eventDate) {
+        const eventTime = new Date(eventDate).getTime();
+        if (!Number.isNaN(eventTime) && Date.now() >= eventTime) {
+          btn.disabled = true;
+          btn.textContent = "終了しました";
+          return;
+        }
+      }
+
       const selected = container.querySelector(
         `input[name="${uid}"]:checked`
       ) as HTMLInputElement | null;
