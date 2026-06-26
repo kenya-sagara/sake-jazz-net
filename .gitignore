@@ -12,3 +12,10 @@ event_sample
 plan
 url
 Screenshot*.png
+
+# Sensitive local integrations / customer data
+tools/google-apps-script/
+*.csv
+*.tsv
+*.sqlite
+*.db

@@ -30,3 +30,8 @@ git push origin main
 - [Stripe Payment Links](https://stripe.com/docs/payment-links) — チケット決済
 - GitHub Pages — ホスティング
 - GitHub Actions — CI/CD
+
+## 受付運用（サーバなし）
+
+- Stripe購入データをGoogleスプレッドシートへ定期同期する手順:
+	[docs/stripe-google-sheets-sync.md](docs/stripe-google-sheets-sync.md)
