@@ -16,13 +16,14 @@ interface ScheduleEntry {
 interface Props {
   title: string;
   date: Date;
+  dateOnly?: boolean;
   endTime?: string;
   location: string;
   address?: string;
   access?: string;
   mapUrl?: string;
   tickets?: TicketEntry[];
-  price: number;
+  price?: number;
   capacity?: number;
   stripeUrl?: string;
   formUrl?: string;
@@ -36,6 +37,7 @@ interface Props {
 const {
   title,
   date,
+  dateOnly,
   endTime,
   location,
   address,
@@ -83,6 +85,7 @@ const badgeDay = new Intl.DateTimeFormat("ja-JP", {
 const formattedDate = formatter.format(date);
 const formattedTime = timeFormatter.format(date);
 const timeRange = endTime ? `${formattedTime}〜${endTime}` : formattedTime;
+const dateDisplay = dateOnly ? formattedDate : `${formattedDate} ${timeRange}`;
 const isPast = date < new Date();
 
 const ticketUrl = stripeUrl || formUrl;
@@ -113,7 +116,7 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
       <div class="detail-row">
         <dt>日時</dt>
         <dd>
-          {formattedDate} {timeRange}
+          {dateDisplay}
           {schedule && schedule.length > 0 && (
             <ul class="schedule-list">
               {schedule.map((s) => (
@@ -174,8 +177,10 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
                   </li>
                 ))}
               </ul>
-            ) : (
+            ) : typeof price === "number" && price > 0 ? (
               <span>¥{price.toLocaleString("ja-JP")}</span>
+            ) : (
+              <span>未定</span>
             )
           }
         </dd>

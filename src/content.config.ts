@@ -6,6 +6,7 @@ const events = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
+    dateOnly: z.boolean().default(false),
     endTime: z.string().optional(),
     location: z.string(),
     address: z.string().optional(),
@@ -22,7 +23,7 @@ const events = defineCollection({
         })
       )
       .optional(),
-    price: z.number(),
+    price: z.number().optional(),
     capacity: z.number().optional(),
     stripeUrl: z.string().url().optional(),
     formUrl: z.string().url().optional(),
