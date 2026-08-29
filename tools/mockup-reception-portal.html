@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>受付ポータル（モックアップ）</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+    background: #f5f5f5;
+    color: #1a1a1a;
+    min-height: 100dvh;
+  }
+
+  /* ── header ── */
+  header {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 { font-size: 1.05rem; font-weight: 700; flex: 1; }
+
+  #counter {
+    font-size: 0.78rem;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  /* ── search ── */
+  #search-wrap {
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    gap: 8px;
+  }
+  #search-input {
+    flex: 1;
+    font-size: 1rem;
+    padding: 10px 12px;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  #search-input:focus { border-color: #1a1a2e; }
+  #search-btn, #clear-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  #search-btn { background: #1a1a2e; color: #fff; }
+  #clear-btn  { background: #e0e0e0; color: #333; }
+
+  /* ── legend ── */
+  #legend {
+    padding: 8px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  #legend-label { font-size: 0.75rem; color: #888; margin-right: 4px; }
+
+  /* ── status ── */
+  #status-msg {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    color: #666;
+    min-height: 28px;
+  }
+
+  /* ── list ── */
+  #list { padding: 8px 16px 80px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── card ── */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border-left: 4px solid transparent;
+    transition: opacity .2s;
+  }
+  .card.checked {
+    opacity: .5;
+    border-left-color: #81c784;
+  }
+
+  /* 同一購入者グループの連結線 */
+  .card-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .card-group .card {
+    border-radius: 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .card-group .card:first-child {
+    border-radius: 12px 12px 0 0;
+  }
+  .card-group .card:last-child {
+    border-radius: 0 0 12px 12px;
+    border-bottom: none;
+  }
+  .card-group .card:only-child {
+    border-radius: 12px;
+  }
+
+  .slot-num {
+    font-size: 0.7rem;
+    color: #aaa;
+    margin-left: 4px;
+    font-weight: 400;
+  }
+  .group-header {
+    background: #f9f9f9;
+    border-radius: 12px 12px 0 0;
+    padding: 7px 16px 5px;
+    border: 1px solid #e8e8e8;
+    border-bottom: none;
+    font-size: 0.78rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .group-header .gh-name { font-weight: 700; color: #1a1a1a; font-size: 0.85rem; }
+  .group-header .gh-email { color: #999; }
+
+  .card-body { flex: 1; min-width: 0; }
+
+  .card-name {
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-email {
+    font-size: 0.78rem;
+    color: #888;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* チケット行 */
+  .tickets-row {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* 種別バッジ（色は JS で付与） */
+  .badge-ticket {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 3px 9px;
+    border: 1.5px solid transparent;
+  }
+
+  .badge-status {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+  .badge-done    { background: #e8f5e9; color: #2e7d32; }
+  .badge-pending { background: #fff3e0; color: #e65100; }
+
+  .checkin-time    { font-size: 0.75rem; color: #888; margin-top: 5px; }
+  .purchased-time  { font-size: 0.75rem; color: #bbb; margin-top: 3px; }
+
+  /* ── buttons ── */
+  .btn-checkin, .btn-undo {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity .15s;
+    align-self: center;
+  }
+  .btn-checkin { background: #2e7d32; color: #fff; }
+  .btn-undo    { background: #e0e0e0; color: #555; }
+  .btn-checkin:disabled, .btn-undo:disabled { opacity: .4; cursor: not-allowed; }
+
+  .empty { text-align: center; color: #999; padding: 40px 0; font-size: 0.9rem; }
+
+  /* ── mock badge ── */
+  .mock-banner {
+    background: #fff8e1;
+    border-bottom: 2px dashed #fbc02d;
+    padding: 6px 16px;
+    font-size: 0.78rem;
+    color: #795548;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-banner">⚠ モックアップ — データはダミーです（本番では Google Apps Script が動作します）</div>
+
+<header>
+  <h1>🎷 受付ポータル</h1>
+  <span id="counter">—</span>
+</header>
+
+<div id="search-wrap">
+  <input id="search-input" type="search" placeholder="名前 または メールで検索" autocomplete="off">
+  <button id="search-btn" onclick="doSearch()">検索</button>
+  <button id="clear-btn"  onclick="clearSearch()">全表示</button>
+</div>
+
+<!-- チケット種別の凡例 -->
+<div id="legend">
+  <span id="legend-label">チケット種別：</span>
+  <!-- JS で挿入 -->
+</div>
+
+<div id="status-msg"></div>
+<div id="list"></div>
+
+<script>
+// ---------------------------------------------------------------------------
+// ダミーデータ（price_id が同じ = 同じ種別）
+// ---------------------------------------------------------------------------
+var MOCK_SESSIONS = [
+  {
+    sessionId: 'cs_001',
+    name: '山田 太郎',
+    email: 'taro@example.com',
+    purchasedAt: '2026-07-01 10:22:00',
+    tickets: [
+      { rowIndex: 2, priceId: 'price_general', ticketName: '一般チケット', quantity: 1, checkinStatus: '' }
+    ]
+  },
+  {
+    sessionId: 'cs_002',
+    name: '鈴木 花子',
+    email: 'hanako@example.com',
+    purchasedAt: '2026-07-02 14:05:00',
+    tickets: [
+      { rowIndex: 3, priceId: 'price_student', ticketName: '学生チケット', quantity: 2, checkinStatus: '' }
+    ]
+  },
+  {
+    sessionId: 'cs_003',
+    name: '佐藤 次郎',
+    email: 'jiro@example.com',
+    purchasedAt: '2026-07-02 18:30:00',
+    tickets: [
+      { rowIndex: 4, priceId: 'price_general', ticketName: '一般チケット', quantity: 1, checkinStatus: 'checked_in', checkinAt: '2026-07-08 17:01:00' },
+      { rowIndex: 5, priceId: 'price_vip',     ticketName: 'VIPチケット',  quantity: 1, checkinStatus: 'checked_in', checkinAt: '2026-07-08 17:01:00' }
+    ]
+  },
+  {
+    sessionId: 'cs_004',
+    name: '田中 美咲',
+    email: 'misaki@example.com',
+    purchasedAt: '2026-07-03 09:11:00',
+    tickets: [
+      { rowIndex: 6, priceId: 'price_pair', ticketName: 'ペアチケット', quantity: 2, checkinStatus: '' }
+    ]
+  },
+  {
+    sessionId: 'cs_005',
+    name: '伊藤 健一',
+    email: 'kenichi@example.com',
+    purchasedAt: '2026-07-03 20:44:00',
+    tickets: [
+      { rowIndex: 7, priceId: 'price_vip', ticketName: 'VIPチケット', quantity: 1, checkinStatus: '' }
+    ]
+  },
+  {
+    sessionId: 'cs_006',
+    name: '渡辺 さくら',
+    email: 'sakura@example.com',
+    purchasedAt: '2026-07-04 12:00:00',
+    tickets: [
+      { rowIndex: 8,  priceId: 'price_general', ticketName: '一般チケット', quantity: 3, checkinStatus: '' },
+      { rowIndex: 9,  priceId: 'price_student', ticketName: '学生チケット', quantity: 1, checkinStatus: '' }
+    ]
+  },
+  {
+    sessionId: 'cs_007',
+    name: 'Smith, John',
+    email: 'john@example.com',
+    purchasedAt: '2026-07-05 08:20:00',
+    tickets: [
+      { rowIndex: 10, priceId: 'price_general', ticketName: '一般チケット', quantity: 1, checkinStatus: '' }
+    ]
+  },
+  {
+    sessionId: 'cs_008',
+    name: '小林 豊',
+    email: 'yutaka@example.com',
+    purchasedAt: '2026-07-06 16:33:00',
+    tickets: [
+      { rowIndex: 11, priceId: 'price_student', ticketName: '学生チケット', quantity: 1, checkinStatus: 'checked_in', checkinAt: '2026-07-08 16:45:00' }
+    ]
+  },
+];
+
+// ---------------------------------------------------------------------------
+// チケット種別カラーパレット（price_id → HSL 色相をハッシュで決定）
+// ---------------------------------------------------------------------------
+var _colorCache = {};
+var PALETTE = [
+  { h: 210 },
+  { h: 340 },
+  { h: 150 },
+  { h: 40  },
+  { h: 280 },
+  { h: 180 },
+];
+
+function priceColor(priceId) {
+  if (_colorCache[priceId]) return _colorCache[priceId];
+  var h = 0;
+  for (var i = 0; i < priceId.length; i++) h = (h * 31 + priceId.charCodeAt(i)) & 0xffff;
+  var hue = PALETTE[h % PALETTE.length].h;
+  _colorCache[priceId] = {
+    bg: 'hsl(' + hue + ',70%,90%)',
+    border: 'hsl(' + hue + ',55%,65%)',
+    text: 'hsl(' + hue + ',55%,28%)',
+  };
+  return _colorCache[priceId];
+}
+
+// ---------------------------------------------------------------------------
+// セッション → スロット展開
+// quantity=N のチケットを N 個の独立スロットに分解する
+// ---------------------------------------------------------------------------
+function expandToSlots(sessions) {
+  var slots = [];
+  sessions.forEach(function(s) {
+    var sessionSlots = [];
+    s.tickets.forEach(function(t) {
+      for (var i = 0; i < t.quantity; i++) {
+        sessionSlots.push({
+          slotId:        s.sessionId + '_' + t.priceId + '_' + i,
+          sessionId:     s.sessionId,
+          name:          s.name,
+          email:         s.email,
+          purchasedAt:   s.purchasedAt,
+          priceId:       t.priceId,
+          ticketName:    t.ticketName,
+          checkinStatus: t.checkinStatus || '',
+          checkinAt:     t.checkinAt    || '',
+        });
+      }
+    });
+    // 同一セッション内での通し番号を付与
+    var total = sessionSlots.length;
+    sessionSlots.forEach(function(sl, idx) {
+      sl.slotNum   = idx + 1;
+      sl.slotTotal = total;
+    });
+    slots = slots.concat(sessionSlots);
+  });
+  return slots;
+}
+
+// ---------------------------------------------------------------------------
+// 凡例の構築
+// ---------------------------------------------------------------------------
+function buildLegend(sessions) {
+  var seen = {};
+  sessions.forEach(function(s) {
+    s.tickets.forEach(function(t) {
+      if (!seen[t.priceId]) seen[t.priceId] = t.ticketName;
+    });
+  });
+  var legend = document.getElementById('legend');
+  Object.keys(seen).forEach(function(pid) {
+    var c = priceColor(pid);
+    var span = document.createElement('span');
+    span.className = 'badge-ticket';
+    span.textContent = seen[pid];
+    span.style.background = c.bg;
+    span.style.borderColor = c.border;
+    span.style.color = c.text;
+    legend.appendChild(span);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+var _allSessions = JSON.parse(JSON.stringify(MOCK_SESSIONS));
+var _allSlots    = [];
+
+function init() {
+  buildLegend(_allSessions);
+  _allSlots = expandToSlots(_allSessions);
+  render(_allSlots);
+}
+
+// ---------------------------------------------------------------------------
+// Render — スロットをセッションIDでグループ化して表示
+// ---------------------------------------------------------------------------
+function render(slots) {
+  var list = document.getElementById('list');
+  var total     = _allSlots.length;
+  var checkedIn = _allSlots.filter(function(sl) { return sl.checkinStatus === 'checked_in'; }).length;
+  document.getElementById('counter').textContent =
+    '受付済 ' + checkedIn + ' / ' + total + ' 枚';
+
+  if (!slots.length) {
+    list.innerHTML = '<div class="empty">該当者なし</div>';
+    return;
+  }
+
+  // セッション単位にまとめて HTML を生成（同一セッションは視覚グループ化）
+  var groups = [];
+  var groupMap = {};
+  slots.forEach(function(sl) {
+    if (!groupMap[sl.sessionId]) {
+      var g = { sessionId: sl.sessionId, name: sl.name, email: sl.email, slots: [] };
+      groupMap[sl.sessionId] = g;
+      groups.push(g);
+    }
+    groupMap[sl.sessionId].slots.push(sl);
+  });
+
+  list.innerHTML = groups.map(function(g) {
+    var multi = g.slots.length > 1;
+    var header = multi
+      ? '<div class="group-header"><span class="gh-name">' + esc(g.name) + '</span>' +
+        '<span class="gh-email">' + esc(g.email) + '</span>' +
+        '<span>（' + g.slots.length + '枚）</span></div>'
+      : '';
+    var cards = '<div class="card-group' + (multi ? ' multi' : '') + '">' +
+      g.slots.map(function(sl) { return buildSlotCard(sl, multi); }).join('') +
+      '</div>';
+    return '<div>' + header + cards + '</div>';
+  }).join('');
+}
+
+function buildSlotCard(sl, hideNameEmail) {
+  var done = sl.checkinStatus === 'checked_in';
+  var c    = priceColor(sl.priceId);
+  var badge = '<span class="badge-ticket" style="background:' + c.bg +
+              ';border-color:' + c.border + ';color:' + c.text + '">' +
+              esc(sl.ticketName) + '</span>';
+  var numLabel = sl.slotTotal > 1
+    ? '<span class="slot-num">' + sl.slotNum + '/' + sl.slotTotal + '枚目</span>'
+    : '';
+
+  return '<div class="card' + (done ? ' checked' : '') + '" id="card-' + sl.slotId + '">' +
+    '<div class="card-body">' +
+      (!hideNameEmail
+        ? '<div class="card-name">' + esc(sl.name) + '</div>' +
+          '<div class="card-email">' + esc(sl.email) + '</div>'
+        : '') +
+      '<div class="tickets-row">' + badge + numLabel +
+        (done
+          ? '<span class="badge-status badge-done">✓ 受付済</span>'
+          : '<span class="badge-status badge-pending">未受付</span>') +
+      '</div>' +
+      (done ? '<div class="checkin-time">受付: ' + esc(sl.checkinAt) + '</div>' : '') +
+      (!hideNameEmail ? '<div class="purchased-time">購入: ' + esc(sl.purchasedAt) + '</div>' : '') +
+    '</div>' +
+    (done
+      ? '<button class="btn-undo"    id="btn-' + sl.slotId + '" onclick="undoSlot(\'' + sl.slotId + '\')">取消</button>'
+      : '<button class="btn-checkin" id="btn-' + sl.slotId + '" onclick="doCheckInSlot(\'' + sl.slotId + '\')">受付</button>') +
+  '</div>';
+}
+
+// ---------------------------------------------------------------------------
+// Check-in / undo（スロット単位）
+// ---------------------------------------------------------------------------
+function doCheckInSlot(slotId) {
+  var btn = document.getElementById('btn-' + slotId);
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+  setTimeout(function() {
+    var now = new Date().toLocaleString('ja-JP');
+    var sl = _allSlots.find(function(x){ return x.slotId === slotId; });
+    if (sl) { sl.checkinStatus = 'checked_in'; sl.checkinAt = now; }
+    render(currentFiltered());
+  }, 200);
+}
+
+function undoSlot(slotId) {
+  var btn = document.getElementById('btn-' + slotId);
+  btn.disabled = true;
+  setTimeout(function() {
+    var sl = _allSlots.find(function(x){ return x.slotId === slotId; });
+    if (sl) { sl.checkinStatus = ''; sl.checkinAt = ''; }
+    render(currentFiltered());
+  }, 200);
+}
+
+// ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
+function doSearch() {
+  render(currentFiltered());
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  render(_allSlots);
+}
+
+function currentFiltered(q) {
+  q = q !== undefined ? q : document.getElementById('search-input').value.trim().toLowerCase();
+  if (!q) return _allSlots;
+  return _allSlots.filter(function(sl) {
+    return sl.name.toLowerCase().includes(q) || sl.email.toLowerCase().includes(q);
+  });
+}
+
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch();
+});
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function setStatus(msg) {
+  document.getElementById('status-msg').textContent = msg;
+}
+
+init();
+</script>
+</body>
+</html>

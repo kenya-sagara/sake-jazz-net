@@ -13,7 +13,7 @@
 1. Google スプレッドシートを新規作成
 2. メニューの「拡張機能」 -> 「Apps Script」を開く
 3. このリポジトリの
-   [tools/google-apps-script/stripe_sync.gs](tools/google-apps-script/stripe_sync.gs)
+  [tools/stripe_sync.gs](tools/stripe_sync.gs)
    を貼り付ける
 4. Apps Script の「プロジェクトの設定」 -> 「スクリプト プロパティ」に以下を登録
 
@@ -37,35 +37,42 @@
 4. イベントのソース: 時間主導型
 5. 実行間隔: 5分ごと（または15分ごと）
 
-## 3.5 取得日付範囲を指定する（前回イベント分を除外）
+## 3.5 イベント切り替え時の実行（Sheetクリア + 日付設定）
 
-前回イベント分を除外したい場合は、Apps Script で一度だけ次を実行します。
+イベントが変わるたびに、まず前回分データを消して期間を設定します。
+
+Apps Script の「実行」ボタンからは引数を渡せないため、通常はこちらを実行:
 
 ```javascript
-setSyncDateRangeJST("2026-06-01", "2026-12-31")
+run0_syncCurrentEvent()
 ```
 
-関数プルダウンから引数つき関数を直接実行しづらい場合は、ヘルパー関数を使えます。
+イベント期間は `stripe_sync.gs` 先頭の次の2定数で設定します:
+
+- `CURRENT_EVENT_START_YMD` 例: `2026-07-19`
+- `CURRENT_EVENT_END_YMD` 例: `2026-09-16`
+
+2ヶ月後のイベントでは、この2定数の日付だけ更新します。
+
+コードから引数を直接渡すこともできます:
 
 ```javascript
-setTrialRange20260517_0518()
+run2_syncEventRange("2026-07-19", "2026-09-16")
+```
+
+実行時エラー（とくにタイムアウト）が出る場合は2段階で実行:
+
+```javascript
+run1_prepareEventRange()
+```
+
+```javascript
+syncStripeCheckoutSessions()
 ```
 
 - 形式は `YYYY-MM-DD`
-- JST（+09:00）で範囲指定されます
-- 以後の同期はこの範囲内のみを取得します
-
-範囲指定をやめて通常運用に戻す場合:
-
-```javascript
-clearSyncDateRange()
-```
-
-過去カーソル（前回同期位置）をリセットしたい場合:
-
-```javascript
-resetSyncCursor()
-```
+- 上記の関数は「Sheetデータ行クリア + 同期カーソル初期化 + JST期間設定 + 即時同期」を1回で実行します
+- 任意期間版を使う場合は `run2_syncEventRange(start, end)` か、`run1_prepareEventRange(start, end)` 実行後に `syncStripeCheckoutSessions` を実行してください
 
 ## 4. シート列の意味
 

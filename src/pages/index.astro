@@ -15,9 +15,14 @@ const sorted = allEvents.sort(
 const now = new Date();
 const upcoming = sorted.filter((e) => e.data.date >= now);
 const past = sorted.filter((e) => e.data.date < now).reverse();
+const featuredEvent = upcoming[0] ?? sorted[sorted.length - 1];
+const ogImage = featuredEvent?.data.image ?? "/hero.jpg";
+const pageDescription = featuredEvent
+  ? `${featuredEvent.data.title} ほか、ビッグバンドジャズと日本酒が出会うライブイベント`
+  : "ビッグバンドジャズと日本酒が出会うライブイベント";
 ---
 
-<Base>
+<Base description={pageDescription} ogImage={ogImage}>
   <Header />
   {
     upcoming.map((event) => {

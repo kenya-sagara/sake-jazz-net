@@ -165,26 +165,28 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
           </div>
         )
       }
-      <div class="detail-row">
-        <dt>料金</dt>
-        <dd>
-          {
-            tickets && tickets.length > 0 ? (
-              <ul class="price-list">
-                {tickets.map((t) => (
-                  <li>
-                    {t.label}：¥{t.amount.toLocaleString("ja-JP")}
-                  </li>
-                ))}
-              </ul>
-            ) : typeof price === "number" && price > 0 ? (
-              <span>¥{price.toLocaleString("ja-JP")}</span>
-            ) : (
-              <span>未定</span>
-            )
-          }
-        </dd>
-      </div>
+      {
+        ((tickets && tickets.length > 0) || (typeof price === "number" && price > 0)) && (
+          <div class="detail-row">
+            <dt>料金</dt>
+            <dd>
+              {
+                tickets && tickets.length > 0 ? (
+                  <ul class="price-list">
+                    {tickets.map((t) => (
+                      <li>
+                        {t.label}：¥{t.amount.toLocaleString("ja-JP")}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span>¥{price!.toLocaleString("ja-JP")}</span>
+                )
+              }
+            </dd>
+          </div>
+        )
+      }
       {
         capacity && (
           <div class="detail-row">

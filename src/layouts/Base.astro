@@ -12,7 +12,7 @@ const {
 } = Astro.props;
 
 const siteName = "SAKE-JAZZ";
-const siteUrl = "https://sake-jazz-net.github.io";
+const siteUrl = Astro.site?.href ?? "https://sake-jazz.artistmerge.jp";
 const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
 const ogImageUrl = new URL(ogImage, siteUrl).href;

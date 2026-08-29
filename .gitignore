@@ -14,7 +14,7 @@ url
 Screenshot*.png
 
 # Sensitive local integrations / customer data
-tools/google-apps-script/
+tools/**/*.gs
 *.csv
 *.tsv
 *.sqlite
