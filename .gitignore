@@ -14,7 +14,7 @@ url
 Screenshot*.png
 
 # Sensitive local integrations / customer data
-tools/**/*.gs
+tools/
 *.csv
 *.tsv
 *.sqlite
