@@ -43,8 +43,10 @@ const pageDescription = featuredEvent
           name: t.label,
           price: t.amount,
           priceCurrency: "JPY",
-          url: t.paymentUrl || "",
-          availability: "https://schema.org/InStock",
+          ...(t.paymentUrl ? { url: t.paymentUrl } : {}),
+          availability: e.soldOut
+            ? "https://schema.org/SoldOut"
+            : "https://schema.org/InStock",
         })),
         organizer: e.organizer
           ? { "@type": "Organization", name: e.organizer }

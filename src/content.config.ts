@@ -6,6 +6,7 @@ const events = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
+    soldOut: z.boolean().default(false),
     dateOnly: z.boolean().default(false),
     endTime: z.string().optional(),
     location: z.string(),

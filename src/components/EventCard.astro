@@ -16,6 +16,7 @@ interface ScheduleEntry {
 interface Props {
   title: string;
   date: Date;
+  soldOut?: boolean;
   dateOnly?: boolean;
   endTime?: string;
   location: string;
@@ -37,6 +38,7 @@ interface Props {
 const {
   title,
   date,
+  soldOut,
   dateOnly,
   endTime,
   location,
@@ -215,7 +217,13 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
 
     <div class="event-actions">
       {
-        tickets && tickets.some((t) => t.paymentUrl) && !isPast ? (
+        soldOut ? (
+          <p class="sold-out-notice">
+            本日のイベントはおかげさまで満席となりましたので、チケット販売は終了しました。
+            <br />
+            たくさんのお申し込みありがとうございます。会場でお会いできるのを楽しみにしています！
+          </p>
+        ) : tickets && tickets.some((t) => t.paymentUrl) && !isPast ? (
           <TicketSelector tickets={tickets} eventDate={date.toISOString()} />
         ) : ticketUrl && !isPast ? (
           <a
@@ -465,6 +473,16 @@ const ticketLabel = stripeUrl ? "チケットを購入" : "参加申し込み";
     font-size: 0.85rem;
     color: var(--color-text-muted);
     font-style: italic;
+  }
+
+  .sold-out-notice {
+    padding: 0.8rem 1rem;
+    border-left: 3px solid var(--color-red);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    background: rgba(0, 65, 92, 0.06);
+    color: var(--color-navy);
+    font-size: 0.88rem;
+    line-height: 1.8;
   }
 
   @media (max-width: 480px) {
